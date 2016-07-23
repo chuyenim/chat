@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en-VN">
+  <head>
+	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div id="header"><strong>Users: </strong>
+	<ul id="users">
+		<li rel="room1"><a href="javascript:switchRoom('room1');">User1</a></li>
+		<li rel="room2" class="online"><a href="javascript:switchRoom('room2');">User2</a></li>
+	</ul>
+	</div>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+      <script>
+var user = {id: 0, name: 'Admin', room: 'room2'};
+		var socket = io('http://localhost:3000/');
+        socket.on('connect', function() {
+            socket.emit('join', user);
+        });
+		$('form').submit(function(){
+			var msg = $('#m').val();
+            socket.emit('chat_message', msg);
+			$('#m').val('');
+			return false;
+		});
+        socket.on('chat_message', function(data){
+			$('#messages').append($('<li>').text(data.name + ": " + data.msg));
+		});
+        socket.on('user_connected', function(user){
+			$('#messages').append($('<li>').addClass('system join').text(user.name + " connected"));
+		});
+        socket.on('user_disconnect', function(user){
+			$('#messages').append($('<li>').addClass('system left').text(user.name + " disconected"));
+		});
+		
+		function switchRoom(room) {
+			socket.emit('switch_room', room);
+			$('#messages').empty();
+			return false;
+		}
+    </script>
+  </body>
+</html>

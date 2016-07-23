@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-VN">
+  <head>
+	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+        var socket = io('http://localhost:3000/');
+		var user = {id: 2, name: 'User2', room: 'room2'};
+        socket.on('connect', function() {
+            socket.emit('join', user);
+        });
+		$('form').submit(function(){
+			var msg = $('#m').val();
+            socket.emit('chat_message', msg);
+			$('#m').val('');
+			return false;
+		});
+        socket.on('chat_message', function(data){
+			$('#messages').append($('<li>').text(data.name + ": " + data.msg));
+		});
+    </script>
+  </body>
+</html>
